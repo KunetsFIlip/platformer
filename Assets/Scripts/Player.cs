@@ -5,69 +5,33 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    //[SerializeFild] private float forceValue;
-    //[SerializeFild] private float minSpeed;
-    private Rigidbody2D rb2d;
-    private Camera mainCamera;
-    private Vector2 statrPosition;
+    public float moveSpeed = 5f;       // Швидкість руху
+    public float jumpForce = 10f;      // Сила стрибка
+    public Transform groundCheck;      // Точка перевірки, чи гравець на землі
+    public float groundCheckRadius = 0.2f; 
+    public LayerMask groundLayer;      // Шар для землі
 
-    public bool canDrag;
-    public bool isNonevisible;
-    // Start is called before the first frame update
+    private Rigidbody2D rb;
+    private bool isGrounded;
+
     void Start()
     {
-        //rb2d.isKinematic = true;
+        rb = GetComponent<Rigidbody2D>();
     }
-    void Awake()
-    {
-        mainCamera = Camera.main;
-        rb2d = GetComponent<Rigidbody2D>();
 
-    }
-    void OnMouseDown()
+    void Update()
     {
-        //float playerSpeed = rb2d.velocity.magnitube;
-        //if(playerSpeed < minSpeed)
-        {
-            canDrag = true;
-            rb2d.isKinematic = true;
-            rb2d.velocity = Vector2.zero;
-            statrPosition = rb2d.position;
+        // Перевірка, чи гравець на землі
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-            //GameObject.Find("GameManager").GetComponent<ResultController>().StopTimer();
-            isNonevisible = false;
-        }
-    }
-    void OnMouseUP()
-    {
-        if (canDrag && !isNonevisible)
+        // Рух вліво/вправо
+        float moveInput = Input.GetAxisRaw("Horizontal");
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+
+        // Стрибок
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            Vector2 currentPosition = rb2d.position;
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
-    }
-    void OmMouseDrag()
-    {
-        if (canDrag && !isNonevisible)
-        {
-            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = new Vector2(mousePosition.x, mousePosition.y);
-        }
-        else if (canDrag && isNonevisible)
-        {
-            transform.position = statrPosition;
-        }
-    }
-    void OecameInvisible()
-    {
-        isNonevisible = true;
-    }
-    void OriggerEnter2D(Collider2D collision)
-    {
-       // if (other.GameObject.CompareTag("Finish"))
-        {
-            //  Destroy(gameObject);
-            //GameObject.Find("GameManager").GetComponent<ResultController>().StopTimer();
-            //GameObject.Find("GameManager").GetComponent<ResultController>().SaveResul();
-        }    
     }
 }
